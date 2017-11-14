@@ -1,0 +1,17 @@
+{
+  "name": "client",
+  "authors": [
+    "Tung Nguyen Van <tung.nguyen@titancorpvn.com>"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "homepage": "",
+  "private": true,
+  "dependencies": {
+    "jquery": "^3.2.1",
+    "socket.io-client": "^2.0.4",
+    "css-reset-and-normalize-sass": "^0.1.2",
+    "jquery.cookie": "^1.4.1"
+  }
+}

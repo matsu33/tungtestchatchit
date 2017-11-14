@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Message Page</title>
+
+       <!--<style>
+            .send-message-form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; z-index: 10; }
+            .send-message-form input { padding: 10px; width: 90%; margin-right: .5%; }
+            .send-message-form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+        </style>-->
+        <link rel="stylesheet" href="reset.min.css">
+        <link rel="stylesheet" href="app.min.css">
+        <script src="chatlib.js"></script>
+        <script src="messageclient.js"></script>
+    </head>
+    <body>
+        <div class="iphone">
+            <div class="border">
+                <form class="chat">
+                    <span></span>
+                    <div class="message-list messages" id="adobewordpress"></div>
+                    <input type="text" placeholder="Your message" id="m" autocomplete="off">
+                    <input type="submit" value="Send">
+                </form>
+            </div>
+        </div>
+        <ul class="list-useronlie"></ul>
+    </body>
+</html>
