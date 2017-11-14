@@ -120,7 +120,7 @@ MailboxClient.prototype.init = function (options) {
             console.log('receiveMessage');
             var serverSid = msgObj.sid,
                 fromWho   = _self.FROM_THEM;
-            if (serverSid == _self.sid) {
+            if (serverSid == _self.sid || msgObj.user.id == _self.user.id) {
                 fromWho = _self.FROM_ME;
             }
             _self.displayMessageFromSomeone(fromWho, msgObj.user, msg);
@@ -128,7 +128,7 @@ MailboxClient.prototype.init = function (options) {
 
         _self.socket.on('receiveJoinChat', function (msgObj) {
             console.log('receiveJoinChat');
-            if (msgObj.sid != _self.sid) {
+            if (msgObj.sid != _self.sid && msgObj.user.id != _self.user.id) {
                 _self.displayMessageFromSomeone(_self.FROM_THEM, msgObj.user, msgObj.user.name + ' has joined chat room.');
             }
             listUserOnline = msgObj.listUserOnline;
