@@ -17,6 +17,7 @@ const ClientSecret = "t1CVxNxMrgfVFaOuC8czrGYl";
 //const RedirectionUrl = "http://tungtestchatchit.herokuapp.com/oauthCallback";
 const RedirectionUrl = "http://chatchit.com:5000/oauthCallback";
 var url = require('url');
+var listUserOnline = [];
 
 app.use(Session({
     secret: 'raysources-secret-19890913007',
@@ -60,14 +61,24 @@ app.get('/checkLogin/:token', function (req, res) {
 
         var p = new Promise(function (resolve, reject) {
             plus.people.get({ userId: 'me', auth: oauth2Client }, function(err, response) {
-                resolve(response || err);
+                if(err){
+                    reject(err);
+                } else {
+                    resolve(response);
+                }
             });
+        }).catch(function (error) {
+            console.log('error when get user data')
+            console.log(error);
+            var redirectUrl = getAuthUrl();
+            result          = {status : 'NOK', message : 'Not logined yet', redirect : redirectUrl};
+            res.send(result);
         }).then(function (data) {
             console.log('get user data successful');
             console.log(data);
             result = {status: 'OK', message: 'Logined', data: data};
             res.send(result)
-        })
+        });
     }else {
         var redirectUrl = getAuthUrl();
         result          = {status : 'NOK', message : 'Not logined yet', redirect : redirectUrl};
@@ -81,7 +92,6 @@ app.get('/getLoginUrl', function (req, res) {
 })
 
 io.on('connect', function (socket) {
-    var listUserOnline = [];
 
     socket.on('disconnect', function () {
         console.log('disconnect');
