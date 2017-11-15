@@ -222,11 +222,6 @@ function randomNumberFromRange(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-function strip_tags(str) {
-    return str;
-    return str.replace('alert', '').replace('.location', '').replace('prompt', '');
-}
-
 $(document).ready(function () {
     var emailToken = getParameterByName('token');
     if (typeof(emailToken) != 'undefined' && emailToken != '') {
@@ -277,6 +272,7 @@ function addHttp(s){
     }
     return s;
 }
+
 String.prototype.replaceAll = function (search, replacement) {
     var target = this;
     return target.replace(new RegExp(search, 'g'), replacement);

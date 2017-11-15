@@ -12,6 +12,7 @@
     "dependencies": {
         "express": "^4.16.2",
         "express-session": "^1.15.6",
+        "fast-levenshtein": "^2.0.6",
         "googleapis": "^22.2.0",
         "socket.io": "^2.0.4"
     }
