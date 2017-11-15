@@ -107,12 +107,13 @@ io.on('connect', function (socket) {
         var isExistedUser = false;
         var sidTemp = sid;
         console.log('joinChat 1');
+        console.log(listUserOnline);
         if(listUserOnline.length > 0){
             for (var i = 0; i < listUserOnline.length; i++) {
                 var user = listUserOnline[i];
                 if(sid.user.id == user.id){
                     isExistedUser = true;
-                    return;
+                    break;
                 }
             }
         }

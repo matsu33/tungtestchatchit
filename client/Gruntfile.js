@@ -83,5 +83,6 @@ module.exports = function(grunt) {
 
     // Default task(s).
     grunt.registerTask('default', ['mkdir', 'concat', 'sass', 'cssmin', 'clean:tempDir']);
+//    grunt.registerTask('default', ['mkdir', 'concat', 'sass', 'cssmin']);
 
 };
