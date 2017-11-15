@@ -17,6 +17,8 @@ var hostLive = "ws://tungtestchatchit.herokuapp.com";
 var portLive = 80;
 var hostDev  = "http://chatchit.com";
 var portDev  = "5000";
+//var hostDev  = "ws://127.0.0.1";
+//var portDev  = "38928";
 var codeEnv  = "DEV";
 //var codeEnv = "LIVE";
 
@@ -51,10 +53,10 @@ function MailboxClient(options) {
     this.FROM_ME = "myMessage",
         this.FROM_THEM = "fromThem";
     this.user = {
-        name: '',
-        image: '',
-        url: '',
-        id: ''
+        name  : '',
+        image : '',
+        url   : '',
+        id    : ''
     };
 //    this.username = "";
 //    this.userimage = "";
@@ -103,14 +105,17 @@ MailboxClient.prototype.init = function (options) {
                 }
             } else
                 if (data.status == 'OK') {
-                    _self.user.name = data.data.displayName;
+                    _self.user.name  = data.data.displayName;
                     _self.user.image = data.data.image.url;
-                    _self.user.url = data.data.url;
-                    _self.user.id = data.data.id;
+                    _self.user.url   = data.data.url;
+                    _self.user.id    = data.data.id;
                     if (_self.user.name == '') {
                         _self.user.name = _self.user.id;
                     }
-//                    console.log(_self.user);
+                    if (typeof(_self.user.url) == 'undefined' || _self.user.url == '' || _self.user.url == 'undefined') {
+                        _self.user.url = data.data.domain;
+                    }
+                    console.log(data.data);
                     _self.displayMessageFromSomeone(_self.FROM_THEM, _self.user, 'Hello ' + _self.user.name + ', welcome to chatchit room');
                     _self.socket.emit('joinChat', {sid : _self.sid, user : _self.user});
                 }
@@ -133,13 +138,14 @@ MailboxClient.prototype.init = function (options) {
             }
             listUserOnline = msgObj.listUserOnline;
             console.log(listUserOnline);
-            if(typeof (listUserOnline) != 'undefined'){
+            if (typeof (listUserOnline) != 'undefined') {
                 for (var i = 0; i < listUserOnline.length; i++) {
                     var user = listUserOnline[i];
-                    var uid = user.id;
-                    if($('.list-useronlie li.'+uid).length <=0){
-                        var username = user.name;
-                        $('.list-useronlie').append('<li class="'+uid+'">'+username+'</li>');
+                    var uid  = user.id;
+                    if ($('.list-useronlie li.' + uid).length <= 0) {
+                        var username     = user.name;
+                        var targetString = user.url != '#' ? 'target="_blank"' : '';
+                        $('.list-useronlie').append('<li class="' + uid + '"><a href="' + addHttp(user.url) + '" ' + targetString + '><img src="' + user.image + '" />' + username + '</a></li>');
                     }
                 }
             }
@@ -205,11 +211,11 @@ function getDateString() {
 
 function initSlideBackgroundImage() {
     console.log('initSlideBackgroundImage');
-    var imageNumberRandom = randomNumberFromRange(1, 289);
-    imageNumberRandom     = 1;
-    var imageUrl          = '/images/model/image_(' + imageNumberRandom + ').jpg';
+    var imageNumberRandom = randomNumberFromRange(1, 52);
+//    imageNumberRandom     = 1;
+    var imageUrl          = '/images/model/image_ (' + imageNumberRandom + ').jpg';
     console.log('imageUrl : ' + imageUrl);
-    $('body').css('background', 'url(' + imageUrl + ')  no-repeat');
+    $('body').css('background', 'url("' + imageUrl.replace(/ /g, '%20') + '") no-repeat center center fixed');
 }
 
 function randomNumberFromRange(min, max) {
@@ -263,7 +269,15 @@ function htmlEscape(str) {
         .replace(/>/g, '&gt;');
 }
 
-String.prototype.replaceAll = function(search, replacement) {
+function addHttp(s){
+    var prefix = 'http';
+    if (s.substr(0, prefix.length) !== prefix)
+    {
+        s = prefix + '://' + s;
+    }
+    return s;
+}
+String.prototype.replaceAll = function (search, replacement) {
     var target = this;
     return target.replace(new RegExp(search, 'g'), replacement);
 };

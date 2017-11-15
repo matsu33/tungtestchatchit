@@ -73,6 +73,23 @@ module.exports = function(grunt) {
                 }
             }
         },
+        watch: {
+//            scripts: {
+//                files: ['<%= srcPath %>/js/**/*.js', '<%= vendorPath %>/**/*.js'],
+//                tasks: ['concat'],
+//                options: {
+//                    spawn: false
+//                }
+//            },
+            css: {
+                files: ['<%= srcPath %>/scss/*.scss'],
+                tasks: ['sass', 'cssmin', 'clean:tempDir']
+            }/*,
+             cam: {
+             files: ['<%= srcPath %>/scss/!**!/!*.scss'],
+             tasks: ['sass', 'cssmin:xtcam']
+             }*/
+        },
     });
 
     grunt.loadNpmTasks('grunt-mkdir');
@@ -80,9 +97,10 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-sass');
     grunt.loadNpmTasks('grunt-contrib-cssmin');
+    grunt.loadNpmTasks('grunt-contrib-watch');
 
     // Default task(s).
-    grunt.registerTask('default', ['mkdir', 'concat', 'sass', 'cssmin', 'clean:tempDir']);
+    grunt.registerTask('default', ['mkdir', 'concat', 'sass', 'cssmin', 'clean:tempDir', 'watch']);
 //    grunt.registerTask('default', ['mkdir', 'concat', 'sass', 'cssmin']);
 
 };

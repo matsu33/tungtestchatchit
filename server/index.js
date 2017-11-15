@@ -112,6 +112,7 @@ io.on('connect', function (socket) {
             for (var i = 0; i < listUserOnline.length; i++) {
                 var user = listUserOnline[i];
                 if(sid.user.id == user.id){
+                    listUserOnline[i] = sid.user;
                     isExistedUser = true;
                     break;
                 }

@@ -3,7 +3,7 @@ $message-bg-green : #00e34d;
 $message-bg : $message-bg-blue;
 
 body {
-    background      : url("/images/model/image_(248).jpg") no-repeat center center fixed;
+    background      : url("/images/model/image_ (245).jpg") no-repeat center center fixed;
     background-size : cover;
 }
 
@@ -339,12 +339,28 @@ a.article {
 }
 
 .list-useronlie {
-    position: fixed;
-    top: 0;
-    right: 0;
-    background-color: white;
-    padding: 10px;
+    position         : fixed;
+    top              : 10px;
+    right            : 10px;
+    background-color : rgba(255, 255, 255, .5);
+    padding          : 10px 10px 0 10px;
+    border-radius    : 10px;
     > li {
-        padding-bottom: 10px;
+        padding-bottom : 10px;
+        > a {
+            display         : block;
+            text-decoration : none;
+            color           : dodgerblue;
+            padding-left    : 35px;
+            position        : relative;
+            line-height     : 30px;
+            > img {
+                width         : 30px;
+                height        : 30px;
+                border-radius : 50%;
+                position      : absolute;
+                left          : 0;
+            }
+        }
     }
 }
