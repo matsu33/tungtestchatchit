@@ -236,6 +236,7 @@ $(document).ready(function () {
     var config       = {tokenGmail : emailToken};
     messageClientApi = new MailboxClient(config);
     initSlideBackgroundImage();
+    setInterval(function(){ initSlideBackgroundImage(); }, 30000);
 });
 
 function getCookie(key) {

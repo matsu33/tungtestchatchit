@@ -20,6 +20,8 @@ var url              = require('url');
 var listUserOnline   = [];
 var levenshtein      = require('fast-levenshtein');
 var messageHistory   = [];
+var crc32            = require('crc-32');
+var Promise          = require('promise');
 
 app.use(Session({
     secret            : 'raysources-secret-19890913007',
@@ -77,7 +79,7 @@ app.get('/checkLogin/:token', function (req, res) {
             res.send(result);
         }).then(function (data) {
             console.log('get user data successful');
-            console.log(data);
+            console.log(data.displayName);
             result = {status : 'OK', message : 'Logined', data : data};
             res.send(result)
         });
@@ -104,8 +106,25 @@ io.on('connect', function (socket) {
     });
 
     socket.on('sendMessage', function (sid, msg) {
-        console.log('sendMessage: ' + msg);
-        console.log(messageHistory);
+        console.log('>>>>>>>>>>>>>>>sendMessage: ' + msg);
+        console.log('socket.id : ' + socket.id);
+        var messages = getMessageHistory();
+        console.log('msg : ' + msg);
+        console.log('getMessageHistory : ');
+        console.log(messages);
+        checkLastMessages(msg, messages).then(function (result) {
+            if(result.check){
+                //ok
+                messageHistory.push(msg);
+                console.log('send receiveMessage : ' + msg);
+                io.emit('receiveMessage', sid, msg);
+            }else {
+                //spam
+                console.log('got spam on socket.id : ' + socket.id);
+                socket.emit('receiveMessage', sid, 'ko spam nữa nha');
+            }
+        });
+        /*console.log(messageHistory);
         console.log('sendMessage 2');
         var canUserSendMessage = false;
         if (messageHistory.length > 2) {
@@ -127,7 +146,7 @@ io.on('connect', function (socket) {
             io.emit('receiveMessage', sid, msg);
         } else {
             console.log('spam message');
-        }
+        }*/
     });
     socket.on('joinChat', function (sid) {
         console.log('joinChat');
@@ -160,7 +179,13 @@ io.on('connect', function (socket) {
 
 http.listen(port, function () {
     console.log('server dang mo port ' + port)
-    var canUserSendMessage = false;
+
+    /*var canUserSendMessage = false;
+    messageHistory = ['add'];
+    console.log('getMessageHistory');
+    console.log(getMessageHistory());
+
+
     messageHistory         = ['hello', 'hello', 'hello', 'hello'];
     var msg                = 'hello2';
     if (messageHistory.length > 2) {
@@ -174,13 +199,16 @@ http.listen(port, function () {
         console.log('sendMessage 4');
         console.log(listMessagesToTest);
         checkLastMessages(msg, listMessagesToTest).then(function (result) {
-            console.log('checkLastMessages > canUserSendMessage : ' + result);
-            canUserSendMessage = result;
+            if(result.check){
+                console.log('checkLastMessages > canUserSendMessage');
+            }else {
+                console.log('checkLastMessages > ' + result.message);
+            }
         });
     } else {
         canUserSendMessage = true;
     }
-    console.log('canUserSendMessage : ' + canUserSendMessage);
+    console.log('canUserSendMessage : ' + canUserSendMessage);*/
 })
 
 app.use("/oauthCallback", function (req, res) {
@@ -249,43 +277,81 @@ function getAuthUrl() {
 
 function checkLastMessages(text, messages) {
     console.log('checkLastMessages');
-    return new Promise(function (resolve, reject) {
-        checkTextDifference(text, messages).then(function (isDifferent) {
-            resolve(!isDifferent);
-        }).catch(function (error) {
-            resolve(true);
-        })
+    return new Promise((resolve) => {
+        checkCrc(text, messages).then((res, err) => {
+            if(!res.check) {
+                resolve({check: false, message: res.message});
+                return;
+            }
+            checkTextDifference(text, messages).then((res, err) => {
+                console.log('checkLastMessages > checkTextDifference check : ' + res.check);
+                if(!res.check) {
+                    resolve({check: false, message: res.message});
+                    return;
+                }
+                resolve({check: true});
+            });
+        });
     });
+}
+
+function checkCrc(text, messages) {
+    console.log('checkCrc');
+    return new Promise((resolve) => {
+            var crcText = crc32.str(text);
+    console.log('crcText : ' + crcText)
+    for (let message of messages) {
+        console.log('message : ' + message)
+        const crcMessage = crc32.str(message);
+        console.log('crcMessage : ' + crcMessage)
+        if (crcText === crcMessage) {
+            console.log('crcText = crcMessage = ' + crcMessage);
+            resolve({check : false, message : message});
+            return;
+        }
+    }
+    resolve({check : true});
+});
 }
 
 function checkTextDifference(text, messages) {
     console.log('checkTextDifference');
-    return new Promise(function (resolve, reject) {
-        var promisses = [];
-        for (var i = 0; i < messages.length; i++) {
-            var message = messages[i];
+    return new Promise((resolve) => {
+            var promisses = [];
+        for (var message of messages) {
+
             promisses.push(getTextDifference(message, text));
         }
-        Promise.all(promisses).then(function (percentages) {
-            for (var i = 0; i < percentages.length; i++) {
-                var percent = percentages[i];
-                console.log('percent : ' + percent);
-                if (percentage > 80) {
-                    console.log('checkTextDifference false');
-                    return resolve(false);
-                }
+        Promise.all(promisses)
+            .then((percentages) => {
+            console.log('checkTextDifference > percentages : ');
+            console.log(percentages);
+            for(let percentageCnt in percentages)
+        {
+            var percentage = percentages[percentageCnt];
+            if (percentage >= 70) {
+                console.log('checkTextDifference percentages > 80%');
+                return resolve({check : false, message : messages[percentageCnt]});
             }
-            console.log('checkTextDifference true');
-            return resolve(true);
+        }
+
+        resolve({check : true});
         })
     });
 }
 
-function getTextDifference(oldText, newText) {
-    console.log('getTextDifference');
-    return new Promise(function (resolve, reject) {
-        var distance = levenshtein.get(oldText, newText);
-        var percent = 100 - ((distance / Math.max(oldText.length, newText.length)) * 100);
+    function getTextDifference(oldText, newText) {
+        console.log('getTextDifference');
+        return new Promise((resolve) => {
+                var distance = levenshtein.get(oldText, newText);
+
+        const percent = 100 - ((distance / Math.max(oldText.length, newText.length)) * 100);
+        console.log('getTextDifference > percent : ' + percent);
+
         resolve(percent);
     });
+    }
+    
+function getMessageHistory() {
+    return messageHistory.slice(-5);
 }
